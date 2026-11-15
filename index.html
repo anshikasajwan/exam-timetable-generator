@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exam Timetable Generator</title>
+<style>
+:root{--bg:#f5f6fb;--card:#fff;--text:#1d2433;--muted:#667089;--line:#e2e5ef;--accent:#4f46e5;--accent-weak:#eceeff;--accent-text:#fff;
+--ok:#0f7b4b;--ok-bg:#e5f6ed;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fff3dc}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1220;--card:#181c2e;--text:#e8eaf3;--muted:#9aa2b8;--line:#2b3152;--accent:#8c8cff;--accent-weak:#252a4d;--accent-text:#10132a;
+--ok:#5fd39a;--ok-bg:#12301f;--bad:#ff8a80;--bad-bg:#3a1a1a;--warn:#f3c35b;--warn-bg:#3a2e10}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:22px 28px 6px}
+header h1{margin:0;font-size:22px}
+header p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.app{display:grid;grid-template-columns:380px minmax(0,1fr);gap:20px;padding:16px 28px 40px;align-items:start}
+@media (max-width:960px){.app{grid-template-columns:1fr;padding:12px 16px 32px}header{padding:18px 16px 4px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{margin:0 0 10px;font-size:15px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;min-height:170px;resize:vertical;white-space:pre}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 12px;border-radius:8px;cursor:pointer;font:inherit;font-size:13.5px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:600;width:100%;padding:11px;font-size:15px}
+.btn.primary:disabled{opacity:.6;cursor:wait}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.days{display:flex;flex-wrap:wrap;gap:6px}
+.days label{margin:0;display:flex;align-items:center;gap:4px;color:var(--text);padding:4px 8px;border:1px solid var(--line);border-radius:999px;font-size:13px;cursor:pointer}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+.banner{padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:14px}
+.banner.ok{background:var(--ok-bg);color:var(--ok)}.banner.bad{background:var(--bad-bg);color:var(--bad)}.banner.warn{background:var(--warn-bg);color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:22px}.stat span{font-size:12.5px;color:var(--muted)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tab{background:none;border:none;padding:9px 14px;cursor:pointer;color:var(--muted);font:inherit;border-bottom:2px solid transparent}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.panel{display:none}.panel.active{display:block}
+.day{border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:10px;overflow:hidden}
+.dayhead{display:flex;justify-content:space-between;padding:9px 14px;background:var(--accent-weak)}
+.dayhead span{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}
+.chip{border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:160px}
+.chip b{display:block}.chip span{display:block;font-size:13px;color:var(--muted)}.chip small{color:var(--accent)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:14px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{background:var(--accent-weak);font-weight:600}
+tr:last-child td{border-bottom:none}
+td.hit{background:var(--accent-weak);font-weight:600;text-align:center}td.miss{color:var(--muted);text-align:center}
+.empty{text-align:center;color:var(--muted);padding:60px 20px}
+h3{margin:14px 0 6px;font-size:15px}
+@media print{header p,.left,.tabs,.toolbar{display:none!important}.app{display:block;padding:0}.panel{display:block!important}.card,.day,.tablewrap{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Exam Timetable Generator</h1>
+  <p>Graph-colouring based scheduler: no class has two exams on one day, and a course shared by many sections has one common date.</p>
+</header>
+
+<div class="app">
+  <div class="left">
+    <div class="card">
+      <h2>1. Dataset</h2>
+      <div class="btns">
+        <button class="btn" id="btnUpload">Upload CSV</button>
+        <button class="btn" id="btnSample">Load sample</button>
+        <button class="btn" id="btnTemplate">Download template</button>
+        <input type="file" id="file" accept=".csv,.txt,text/csv" hidden>
+      </div>
+      <textarea id="csv" spellcheck="false" placeholder="class,course_code,course_name&#10;CSE-Sem1-A,MA101,Engineering Calculus&#10;CSE-Sem1-B,MA101,Engineering Calculus"></textarea>
+      <div class="hint" id="dsInfo">One row per class and course. A class = programme + semester + section. You can also paste or edit the rows here.</div>
+    </div>
+
+    <div class="card">
+      <h2>2. Exam settings</h2>
+      <div class="row">
+        <div><label for="start">First possible exam date</label><input type="date" id="start"></div>
+        <div><label for="gap">Study gap (days)</label><input type="number" id="gap" min="0" value="0"></div>
+      </div>
+      <label>Days with no exams</label>
+      <div class="days" id="weekdays"></div>
+      <label for="holidays">Holidays (YYYY-MM-DD, separated by spaces, commas or new lines)</label>
+      <input type="text" id="holidays" placeholder="2026-12-25, 2027-01-01">
+      <div class="row">
+        <div><label for="maxdays">Max exam days (optional)</label><input type="number" id="maxdays" min="1" placeholder="e.g. 12"></div>
+        <div><label for="timeout">Backtracking limit (s)</label><input type="number" id="timeout" min="1" max="60" value="5"></div>
+      </div>
+      <label for="algo">Algorithm used for the timetable</label>
+      <select id="algo">
+        <option value="backtracking">Backtracking (exact, finds the minimum days)</option>
+        <option value="dsatur">DSATUR (fast heuristic)</option>
+        <option value="welsh-powell">Welsh-Powell (greedy)</option>
+      </select>
+    </div>
+    <button class="btn primary" id="go">Generate timetable</button>
+  </div>
+
+  <div class="right">
+    <div id="msg"></div>
+    <div id="results"><div class="card empty">Load a dataset and press <b>Generate timetable</b>.</div></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAYNAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const ALGONAMES = {'dsatur':'DSATUR','welsh-powell':'Welsh-Powell','backtracking':'Backtracking'};
+let result = null;
+
+// ---- settings widgets
+$('#weekdays').innerHTML = DAYNAMES.map((d,i) =>
+  `<label><input type="checkbox" value="${i}" ${i===6?'checked':''}> ${d}</label>`).join('');
+(function(){ // default start = next Monday
+  const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7));
+  $('#start').value = d.toISOString().slice(0,10);
+})();
+
+// ---- dataset input
+$('#btnUpload').onclick = () => $('#file').click();
+$('#file').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { $('#csv').value = r.result; updateInfo(); };
+  r.readAsText(f);
+  e.target.value = '';
+};
+$('#btnSample').onclick = async () => {
+  try { $('#csv').value = await (await fetch('/api/sample')).text(); updateInfo(); }
+  catch { showMsg('bad','Could not load the sample dataset.'); }
+};
+$('#btnTemplate').onclick = () => download('dataset_template.csv',
+  'class,course_code,course_name\nCSE-Sem1-A,MA101,Engineering Calculus\nCSE-Sem1-B,MA101,Engineering Calculus\nCSE-Sem3-A,CS201,Data Structures\n');
+$('#csv').oninput = updateInfo;
+function updateInfo(){
+  const lines = $('#csv').value.split('\n').filter(l => l.trim()).length - 1;
+  $('#dsInfo').textContent = lines > 0 ? `${lines} class-course rows loaded.` :
+    'One row per class and course. A class = programme + semester + section. You can also paste or edit the rows here.';
+}
+
+// ---- helpers
+function showMsg(type, text){ $('#msg').innerHTML = text ? `<div class="banner ${type}">${text}</div>` : ''; }
+function csvCell(v){ v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; }
+function download(name, text){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type:'text/csv'}));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ---- generate
+$('#go').onclick = async () => {
+  const btn = $('#go'); btn.disabled = true; btn.textContent = 'Generating...'; showMsg('', '');
+  const payload = {
+    csv: $('#csv').value,
+    start_date: $('#start').value,
+    skip_weekdays: [...document.querySelectorAll('#weekdays input:checked')].map(c => +c.value),
+    holidays: $('#holidays').value.split(/[\s,;]+/).filter(Boolean),
+    gap_days: +$('#gap').value || 0,
+    max_days: $('#maxdays').value ? +$('#maxdays').value : null,
+    timeout: +$('#timeout').value || 5,
+    algo: $('#algo').value
+  };
+  try {
+    const res = await fetch('/api/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const data = await res.json();
+    if (!res.ok) { showMsg('bad', esc(data.error || 'Something went wrong.')); return; }
+    result = data; render();
+  } catch (e) {
+    showMsg('bad', 'Could not reach the server. Is <code>python server.py</code> still running?');
+  } finally { btn.disabled = false; btn.textContent = 'Generate timetable'; }
+};
+
+// ---- render
+function render(){
+  const r = result, s = r.summary;
+  let banners = r.errors.length
+    ? `<div class="banner bad"><b>Clash found:</b><br>${r.errors.map(esc).join('<br>')}</div>`
+    : `<div class="banner ok">Validation passed: no class has two exams on the same day, and every course has exactly one date for all its sections.</div>`;
+  banners += r.warnings.map(w => `<div class="banner warn">${esc(w)}</div>`).join('');
+
+  $('#results').innerHTML = `
+    ${banners}
+    <div class="stats">
+      <div class="stat"><b>${s.days}</b><span>Exam days</span></div>
+      <div class="stat"><b>${s.courses}</b><span>Courses (vertices)</span></div>
+      <div class="stat"><b>${s.conflicts}</b><span>Conflicts (edges)</span></div>
+      <div class="stat"><b>${s.classes}</b><span>Classes</span></div>
+      <div class="stat"><b>${s.lower_bound}</b><span>Minimum possible days</span></div>
+    </div>
+    <div class="toolbar btns">
+      <button class="btn" onclick="exportMaster()">Download master CSV</button>
+      <button class="btn" onclick="exportClasses()">Download class-wise CSV</button>
+      <button class="btn" onclick="window.print()">Print</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="p1">Day-wise</button>
+      <button class="tab" data-tab="p2">Class grid</button>
+      <button class="tab" data-tab="p3">Class-wise</button>
+      <button class="tab" data-tab="p4">Algorithms</button>
+    </div>
+    <div class="panel active" id="p1">${dayWise()}</div>
+    <div class="panel" id="p2">${grid()}</div>
+    <div class="panel" id="p3">${classWise()}</div>
+    <div class="panel" id="p4">${algoTab()}</div>`;
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    document.querySelectorAll('.tab,.panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active'); $('#' + t.dataset.tab).classList.add('active');
+  });
+  const sel = $('#classSel'); if (sel) sel.onchange = () => $('#classBody').innerHTML = classTables(sel.value);
+}
+
+function dayWise(){
+  return result.days.map(d => `
+    <div class="day"><div class="dayhead"><b>Day ${d.day}</b><span>${esc(d.label)}</span></div>
+    <div class="chips">${d.courses.map(c => `
+      <div class="chip" title="${esc(c.classes.join(', '))}"><b>${esc(c.code)}</b><span>${esc(c.name)}</span>
+      <small>${c.classes.length} class${c.classes.length > 1 ? 'es' : ''}</small></div>`).join('')}</div></div>`).join('');
+}
+
+function grid(){
+  const names = Object.keys(result.classes);
+  const head = names.map(n => `<th>${esc(n)}</th>`).join('');
+  const rows = result.days.map(d => {
+    const cells = names.map(n => {
+      const hit = result.classes[n].find(e => e.day === d.day);
+      return hit ? `<td class="hit" title="${esc(hit.name)}">${esc(hit.code)}</td>` : `<td class="miss">-</td>`;
+    }).join('');
+    return `<tr><th>${esc(d.label)}</th>${cells}</tr>`;
+  }).join('');
+  return `<div class="tablewrap"><table><tr><th>Date</th>${head}</tr>${rows}</table></div>
+          <div class="hint">Each class column has at most one course per date. Hover a code to see the course name.</div>`;
+}
+
+function classTables(which){
+  const names = which === '*' ? Object.keys(result.classes) : [which];
+  return names.map(n => `<h3>${esc(n)}</h3><div class="tablewrap"><table>
+    <tr><th>Date</th><th>Course code</th><th>Course name</th></tr>
+    ${result.classes[n].map(e => `<tr><td>${esc(e.label)}</td><td>${esc(e.code)}</td><td>${esc(e.name)}</td></tr>`).join('')}
+    </table></div>`).join('');
+}
+function classWise(){
+  const opts = Object.keys(result.classes).map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  return `<div class="toolbar" style="max-width:320px"><select id="classSel"><option value="*">All classes</option>${opts}</select></div>
+          <div id="classBody">${classTables('*')}</div>`;
+}
+
+function algoTab(){
+  const rows = result.comparison.map(c => {
+    const opt = c.proven === true ? 'Proven minimum' : c.proven === false ? 'Not proven (time limit)' : '-';
+    return `<tr><td>${ALGONAMES[c.algo]}${c.algo === result.algo ? ' <b>(used)</b>' : ''}</td><td>${c.days}</td><td>${c.ms}</td><td>${opt}</td></tr>`;
+  }).join('');
+  return `<div class="tablewrap"><table><tr><th>Algorithm</th><th>Exam days</th><th>Time (ms)</th><th>Optimality</th></tr>${rows}</table></div>
+  <div class="hint">Courses are vertices, a shared class makes an edge, and each colour is an exam day. Finding the fewest colours is NP-hard,
+  so greedy methods are fast but may use extra days, while backtracking is exact but exponential in the worst case.
+  Lower bound = the largest number of courses any single class writes (${result.summary.lower_bound}).</div>`;
+}
+
+// ---- exports
+function exportMaster(){
+  let out = 'Exam Day,Date,Course Code,Course Name,Classes Writing\n';
+  result.days.forEach(d => d.courses.forEach(c =>
+    out += [d.day, d.label, c.code, c.name, c.classes.join('; ')].map(csvCell).join(',') + '\n'));
+  download('timetable_master.csv', out);
+}
+function exportClasses(){
+  let out = 'Class,Date,Course Code,Course Name\n';
+  Object.entries(result.classes).forEach(([n, list]) => list.forEach(e =>
+    out += [n, e.label, e.code, e.name].map(csvCell).join(',') + '\n'));
+  download('timetable_by_class.csv', out);
+}
+
+// auto-load the sample on first open so the page is not empty
+$('#btnSample').click();
+</script>
+</body>
+</html>

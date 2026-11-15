@@ -1,0 +1,42 @@
+class,course_code,course_name
+CSE-Sem1-A,MA101,Engineering Calculus
+CSE-Sem1-A,PH101,Engineering Physics
+CSE-Sem1-A,CS101,Programming in C
+CSE-Sem1-A,HS101,Communication Skills
+CSE-Sem1-A,EE101,Basic Electrical Engg
+CSE-Sem1-B,MA101,Engineering Calculus
+CSE-Sem1-B,PH101,Engineering Physics
+CSE-Sem1-B,CS101,Programming in C
+CSE-Sem1-B,HS101,Communication Skills
+CSE-Sem1-B,EE101,Basic Electrical Engg
+ECE-Sem1-A,MA101,Engineering Calculus
+ECE-Sem1-A,PH101,Engineering Physics
+ECE-Sem1-A,EE101,Basic Electrical Engg
+ECE-Sem1-A,HS101,Communication Skills
+ECE-Sem1-A,CS101,Programming in C
+CSE-Sem3-A,CS201,Data Structures
+CSE-Sem3-A,CS202,Design & Analysis of Algorithms
+CSE-Sem3-A,CS203,Database Management Systems
+CSE-Sem3-A,MA201,Discrete Mathematics
+CSE-Sem3-A,EC201,Digital Electronics
+CSE-Sem3-B,CS201,Data Structures
+CSE-Sem3-B,CS202,Design & Analysis of Algorithms
+CSE-Sem3-B,CS203,Database Management Systems
+CSE-Sem3-B,MA201,Discrete Mathematics
+CSE-Sem3-B,EC201,Digital Electronics
+IT-Sem3-A,CS201,Data Structures
+IT-Sem3-A,CS203,Database Management Systems
+IT-Sem3-A,MA201,Discrete Mathematics
+IT-Sem3-A,HS101,Communication Skills
+ECE-Sem3-A,EC201,Digital Electronics
+ECE-Sem3-A,MA201,Discrete Mathematics
+ECE-Sem3-A,CS201,Data Structures
+ECE-Sem3-A,EE101,Basic Electrical Engg
+CSE-Sem5-A,CS301,Operating Systems
+CSE-Sem5-A,CS302,Computer Networks
+CSE-Sem5-A,CS303,Software Engineering
+CSE-Sem5-A,CS202,Design & Analysis of Algorithms
+CSE-Sem5-B,CS301,Operating Systems
+CSE-Sem5-B,CS302,Computer Networks
+CSE-Sem5-B,CS303,Software Engineering
+CSE-Sem5-B,CS202,Design & Analysis of Algorithms

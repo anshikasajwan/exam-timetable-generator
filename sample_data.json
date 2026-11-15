@@ -1,0 +1,33 @@
+{
+  "start_date": "2026-12-01",
+  "skip_weekdays": [6],
+  "holidays": ["2026-12-25"],
+  "gap_days": 0,
+  "max_days": 10,
+  "courses": {
+    "MA101": "Engineering Calculus",
+    "PH101": "Engineering Physics",
+    "CS101": "Programming in C",
+    "HS101": "Communication Skills",
+    "EE101": "Basic Electrical Engg",
+    "CS201": "Data Structures",
+    "CS202": "Design & Analysis of Algorithms",
+    "CS203": "Database Management Systems",
+    "MA201": "Discrete Mathematics",
+    "CS301": "Operating Systems",
+    "CS302": "Computer Networks",
+    "CS303": "Software Engineering",
+    "EC201": "Digital Electronics"
+  },
+  "classes": {
+    "CSE-Sem1-A": ["MA101", "PH101", "CS101", "HS101", "EE101"],
+    "CSE-Sem1-B": ["MA101", "PH101", "CS101", "HS101", "EE101"],
+    "ECE-Sem1-A": ["MA101", "PH101", "EE101", "HS101", "CS101"],
+    "CSE-Sem3-A": ["CS201", "CS202", "CS203", "MA201", "EC201"],
+    "CSE-Sem3-B": ["CS201", "CS202", "CS203", "MA201", "EC201"],
+    "IT-Sem3-A":  ["CS201", "CS203", "MA201", "HS101"],
+    "ECE-Sem3-A": ["EC201", "MA201", "CS201", "EE101"],
+    "CSE-Sem5-A": ["CS301", "CS302", "CS303", "CS202"],
+    "CSE-Sem5-B": ["CS301", "CS302", "CS303", "CS202"]
+  }
+}
